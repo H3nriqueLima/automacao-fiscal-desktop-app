@@ -1,8 +1,4 @@
-from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QPushButton, QLineEdit, QWidget
-from PySide6.QtCore import Qt
-
-from utils.resourcePath import resourcePath
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QLineEdit, QWidget
 
 
 class SystemRowWidget(QFrame):
@@ -73,51 +69,6 @@ class SystemRowWidget(QFrame):
         self.systemName:str = systemName
         self.loginField = loginLine
         self.passwordField = passwordLine
-
-        # # Botões de ação (editar/excluir)
-        # systemButtonsColumn = QFrame()
-        # layoutSystemButtonsColumn = QHBoxLayout(systemButtonsColumn)
-        # systemEdit = QPushButton()
-        # systemDelete = QPushButton()
-        #
-        # systemEdit.setObjectName("SystemEdit")
-        # systemEdit.setIcon(QIcon(resourcePath("images/icone-Editar-semfundo.png")))
-        # systemEdit.setCursor(Qt.CursorShape.PointingHandCursor)
-        # systemEdit.setStyleSheet("""
-        #     #SystemEdit {
-        #         background-color: white;
-        #         border: 1px solid lightgray;
-        #         border-radius: 5px;
-        #         width: 30px;
-        #         height: 30px;
-        #     }
-        #     #SystemEdit:hover {
-        #         background-color: lightgray;
-        #     }
-        # """)
-        #
-        # systemDelete.setObjectName("SystemDelete")
-        # systemDelete.setIcon(QIcon(resourcePath("images/icone-Excluir-semfundo.png")))
-        # systemDelete.setCursor(Qt.CursorShape.PointingHandCursor)
-        # systemDelete.setStyleSheet("""
-        #     #SystemDelete {
-        #         background-color: white;
-        #         border: 1px solid lightgray;
-        #         border-radius: 5px;
-        #         width: 30px;
-        #         height: 30px;
-        #     }
-        #     #SystemDelete:hover {
-        #         background-color: lightgray;
-        #     }
-        # """)
-        #
-        # systemButtonsColumn.setFixedWidth(80)
-        # layoutSystemButtonsColumn.setContentsMargins(9,0,0,0)
-        # layoutSystemButtonsColumn.setSpacing(6)
-        # layoutSystemButtonsColumn.addWidget(systemEdit)
-        # layoutSystemButtonsColumn.addWidget(systemDelete)
-        # layout.addWidget(systemButtonsColumn)
 
     # GETTERS
     def getSystemName(self) -> str:

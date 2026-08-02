@@ -47,3 +47,13 @@ DISPLAY_NAME_TO_NF_TYPE = {
 }
 
 NF_TYPE_TO_DISPLAY_NAME = {v: k for k, v in DISPLAY_NAME_TO_NF_TYPE.items()}
+
+CERTIFICATE_BASED_TASK_TYPES = {"DAS", "EFD_ICMS", "EFD_CONT"}
+
+CONFIG_SERVICE_OPTIONS = {
+    "DAS (PGDAS-D e-CAC)": "DAS",
+    "EFD ICMS/IPI": "EFD_ICMS",
+    "EFD Contribuições": "EFD_CONT",
+}
+
+ADD_SERVICE_OPTION_TEXT = "+ Adicionar serviço..."

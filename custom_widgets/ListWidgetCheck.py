@@ -1,5 +1,5 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QListWidget, QWidget, QListWidgetItem
+from PySide6.QtWidgets import QListWidget, QListWidgetItem
 
 
 class ListWidgetCheck(QListWidget):
@@ -39,7 +39,8 @@ class ListWidgetCheck(QListWidget):
 
         self.itemClicked.connect(self.toggleCheck)
 
-    def toggleCheck(self, item: QListWidgetItem):
+    @staticmethod
+    def toggleCheck(item: QListWidgetItem):
         newState = (
             Qt.CheckState.Unchecked
             if item.checkState() == Qt.CheckState.Checked

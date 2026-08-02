@@ -36,3 +36,11 @@ class CompanyApiService:
         url = f"{CompanyApiService.API_URL}{companyId}/tasks/{taskId}"
         response = requests.delete(url, timeout=10)
         response.raise_for_status()
+
+    @staticmethod
+    def addSystemLogin(companyId: int, systemName: str, login: str, password: str) -> dict:
+        url = f"{CompanyApiService.API_URL}{companyId}/system-logins/"
+        payload = {"system_name": systemName, "login": login, "password": password}
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        return response.json()

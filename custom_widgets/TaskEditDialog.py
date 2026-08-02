@@ -44,7 +44,7 @@ class TaskEditDialog(QDialog):
         self.boxTaskType.addItems(list(BOX_SCHEDULE_TO_TASK_TYPE.keys()))
         layout.addWidget(self.boxTaskType)
 
-        # Tipo de NF (só relevante se for "Consulta de Notas Fiscais")
+        # Tipo de NF
         self.boxNfType = QComboBox()
         registeredNames = [SYSTEM_KEY_TO_DISPLAY_NAME[k] for k in registeredSystemKeys if k in SYSTEM_KEY_TO_DISPLAY_NAME]
         self.boxNfType.addItems(registeredNames if registeredNames else ["Nenhum sistema cadastrado"])
@@ -127,7 +127,6 @@ class TaskEditDialog(QDialog):
             if index >= 0:
                 self.boxRepeatUnit.setCurrentIndex(index)
 
-        # restaura o sistema de NF selecionado, se for o caso — agora direto, sem gambiarra
         nfType = self.taskData.get("nf_type")
         if nfType:
             displayName = NF_TYPE_TO_DISPLAY_NAME.get(nfType)
@@ -143,7 +142,7 @@ class TaskEditDialog(QDialog):
         nfType = None
         if taskType == "NF":
             if not self.boxNfType.isEnabled():
-                return  # não deveria acontecer, combobox já bloqueia
+                return
             nfType = DISPLAY_NAME_TO_NF_TYPE.get(self.boxNfType.currentText())
 
         self.result_data = {

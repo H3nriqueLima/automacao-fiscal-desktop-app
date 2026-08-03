@@ -13,6 +13,7 @@ from models.TaskMappings import BOX_SCHEDULE_TO_TASK_TYPE, SYSTEM_KEY_TO_DISPLAY
 from services.FeatureButtons import FeatureButtons
 from services.RegisterCompany import RegisterCompany
 from services.SelectCertificate import SelectCertificate
+from services.TaskScheduler import TaskScheduler
 from services.ValidateDataRegister import DataValidator
 from services.Navigator import Navigator
 from workers.AddSystemLoginWorker import AddSystemLoginWorker
@@ -67,6 +68,10 @@ class MainWindow(QMainWindow):
         self._setupSystemTray()
 
         self.goToHome()
+
+        self.scheduler = TaskScheduler(checkIntervalMs=60_000)
+        self.scheduler.taskExecuted.connect(self._onAutomationTaskExecuted)
+        self.scheduler.start()
 
     # =====================================================================
     # SETUP — monta cada parte da tela, chamado uma vez só na inicialização
@@ -655,6 +660,18 @@ class MainWindow(QMainWindow):
     def _quitApplication(self):
         self.trayIcon.hide()
         QApplication.quit()
+
+    # ==================================================================
+    # AUTOMAÇÃO
+    # ==================================================================
+
+    def _onAutomationTaskExecuted(self, taskData: dict, success: bool, message: str):
+        if success:
+            self.trayIcon.showMessage("Automação Fiscal", f"Tarefa concluída: {message}",
+                                      QSystemTrayIcon.MessageIcon.Information, 3000)
+        else:
+            self.trayIcon.showMessage("Automação Fiscal", f"Falha na tarefa: {message}",
+                                      QSystemTrayIcon.MessageIcon.Warning, 3000)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

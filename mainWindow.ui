@@ -1872,7 +1872,7 @@ do Simples Nacional (DAS).</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>728</width>
+                         <width>260</width>
                          <height>138</height>
                         </rect>
                        </property>
@@ -2302,7 +2302,7 @@ do Simples Nacional (DAS).</string>
                      <rect>
                       <x>0</x>
                       <y>20</y>
-                      <width>151</width>
+                      <width>171</width>
                       <height>31</height>
                      </rect>
                     </property>
@@ -3378,7 +3378,7 @@ do Simples Nacional (DAS).</string>
                         <rect>
                          <x>70</x>
                          <y>0</y>
-                         <width>115</width>
+                         <width>151</width>
                          <height>30</height>
                         </rect>
                        </property>
@@ -3436,7 +3436,7 @@ do Simples Nacional (DAS).</string>
                         <rect>
                          <x>70</x>
                          <y>0</y>
-                         <width>115</width>
+                         <width>151</width>
                          <height>30</height>
                         </rect>
                        </property>

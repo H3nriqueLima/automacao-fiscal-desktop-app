@@ -8,8 +8,10 @@ from typing import cast
 
 from custom_widgets.AddServiceDialog import AddServiceDialog
 from custom_widgets.ListWidgetCheck import ListWidgetCheck
+from custom_widgets.RunAutomationDialog import RunAutomationDialog
 from custom_widgets.TaskEditDialog import TaskEditDialog
 from models.TaskMappings import BOX_SCHEDULE_TO_TASK_TYPE, SYSTEM_KEY_TO_DISPLAY_NAME, DISPLAY_NAME_TO_NF_TYPE, CONFIG_SERVICE_OPTIONS, ADD_SERVICE_OPTION_TEXT
+from services.CompanyCache import CompanyCache
 from services.FeatureButtons import FeatureButtons
 from services.RegisterCompany import RegisterCompany
 from services.SelectCertificate import SelectCertificate
@@ -17,9 +19,9 @@ from services.TaskScheduler import TaskScheduler
 from services.ValidateDataRegister import DataValidator
 from services.Navigator import Navigator
 from workers.AddSystemLoginWorker import AddSystemLoginWorker
+from workers.AutomationExecutionWorker import AutomationExecutionWorker
 from workers.CreateTaskWorker import CreateTaskWorker
 from workers.DeleteTaskWorker import DeleteTaskWorker
-from workers.LoadCompaniesWorker import LoadCompaniesWorker
 from workers.LoadTasksWorker import LoadTasksWorker
 from workers.RegisterCompanyWorker import RegisterCompanyWorker
 from workers.UpdateTaskWorker import UpdateTaskWorker
@@ -43,20 +45,23 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # workers guardados como atributo para não serem coletados pelo garbage collector, enquanto continuam a rodar em segundo plano
+        # Workers guardados como atributo para não serem coletados pelo garbage collector enquanto continuam a rodar em segundo plano. O carregamento de empresas não entra mais aqui, isso agora é responsabilidade única do companyCache.
         self.registerWorker = None
-        self.loadCompaniesWorker = None
         self.createTaskWorker = None
         self.loadTasksWorker = None
         self.updateTaskWorker = None
         self.deleteTaskWorker = None
         self.addSystemLoginWorker = None
-        self.loadCompaniesConfigWorker = None
+        self.runAutomationWorker = None
 
-        # cache dos dados vindos da API, evita ficar a buscar de novo toda hora
-        self.loadedCompanies: list[dict] = []
-        self.loadedCompaniesConfig: list[dict] = []
+        # cache das tasks da empresa atualmente aberta na tela de agendamento, usado só para achar a task pelo id na hora de editar (evita nova chamada à API)
         self._currentTasksCache: list[dict] = []
+
+        # cache central de empresas (com systems e tasks), carregado uma vez ao abrir o app, todas as telas leem daqui em vez de bater na API toda hora
+        self.companyCache = CompanyCache(self)
+        self.companyCache.dataUpdated.connect(self._onCompanyCacheUpdated)
+        self.companyCache.loadFailed.connect(self._onCompanyCacheFailed)
+        self.companyCache.refresh()
 
         self._setupScrollLayouts()
         self._setupClock()
@@ -69,6 +74,7 @@ class MainWindow(QMainWindow):
 
         self.goToHome()
 
+        # motor que fica de olho no relógio e dispara as automações agendadas
         self.scheduler = TaskScheduler(checkIntervalMs=60_000)
         self.scheduler.taskExecuted.connect(self._onAutomationTaskExecuted)
         self.scheduler.start()
@@ -78,7 +84,7 @@ class MainWindow(QMainWindow):
     # =====================================================================
 
     def _setupScrollLayouts(self):
-        # pega os layouts já criados no ‘Designer’ para poder inserir as rows dinamicamente depois
+        # pega os layouts já criados no Designer para poder inserir as rows dinamicamente depois
         self.scrollLayoutTasks = cast(QVBoxLayout, self.ui.scrollAreaWidgetContents.layout())
         self.scrollLayoutSystems = cast(QVBoxLayout, self.ui.scrollAreaWidgetContentsLogins.layout())
         self.scrollLayoutTasks.addStretch()
@@ -106,6 +112,13 @@ class MainWindow(QMainWindow):
         self.ui.homeButtonConfigSched.clicked.connect(self.goToHome)
         self.ui.homeButtonRegisterCompany.clicked.connect(self.goToHome)
 
+        # os 4 cards da home que rodam automação manualmente (fora do agendamento)
+        self.ui.DASbutton.clicked.connect(lambda: self.onRunAutomationClicked("DAS", "DAS"))
+        self.ui.ICMSbutton.clicked.connect(lambda: self.onRunAutomationClicked("EFD_ICMS", "EFD ICMS/IPI"))
+        self.ui.EFDContbutton.clicked.connect(lambda: self.onRunAutomationClicked("EFD_CONT", "EFD Contribuições"))
+        self.ui.Notasbutton.clicked.connect(
+            lambda: self.onRunAutomationClicked("NF", "Consulta de Notas Fiscais", requiresSystem=True))
+
         # deixa clique atravessar os títulos das tarefas, senão eles bloqueiam o clique do botão em baixo
         self.ui.buttonTitleDAS.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.ui.buttonTitleEFDCont.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
@@ -113,7 +126,7 @@ class MainWindow(QMainWindow):
         self.ui.buttonTitleNotas.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
 
     def _setupSystemsList(self):
-        # lista de ‘checkbox’ dos sistemas de NF, usada na tela de cadastro de empresa
+        # lista de checkbox dos sistemas de NF, usada na tela de cadastro de empresa
         contentSystems = self.ui.selectSystemsContent
         layoutSystems = QVBoxLayout()
         layoutSystems.setContentsMargins(0, 9, 0, 9)
@@ -122,12 +135,7 @@ class MainWindow(QMainWindow):
         self.systemsList = ListWidgetCheck(["Nota do Milhão", "IOB", "Memocash", "GINFES", "GISS Nova"])
         layoutSystems.addWidget(self.systemsList)
 
-        self.systemsList.itemClicked.connect(lambda: self.featureButtons.onSystemToggled(
-            self.systemsList.currentItem(),
-            self.scrollLayoutSystems,
-            "",
-            ""
-        ))
+        self.systemsList.itemClicked.connect(self._onSystemItemClicked)
 
     def _setupScheduleTypeOptions(self):
         self.ui.boxSchedule.clear()
@@ -185,6 +193,43 @@ class MainWindow(QMainWindow):
 
         self.trayIcon.show()
 
+    # =====================================================================
+    # CACHE DO PROGRAMA — fonte única de verdade dos dados de empresa,
+    # evita ficar a bater na API toda a vez que troca de tela
+    # =====================================================================
+
+    def _onCompanyCacheUpdated(self, companies: list):
+        # dispara sempre que o cache termina de (re)carregar, atualiza as duas combos que dependem da lista de empresas, em qualquer tela que esteja aberta
+        self._refreshCompanyComboBoxes(companies)
+
+    def _onCompanyCacheFailed(self, errorMessage: str):
+        # por enquanto não trava nada, se a API estiver fora, o app continua a funcionar com o que já tinha em cache (ou vazio, se for o primeiro load)
+        pass
+
+    def _refreshCompanyComboBoxes(self, companies: list):
+        self._populateComboWithCompanies(self.ui.boxCompanyScheduling, companies)
+        self._populateComboWithCompanies(self.ui.boxCompany, companies)
+
+    @staticmethod
+    def _populateComboWithCompanies(combo, companies: list):
+        # tenta manter a empresa que já estava selecionada, em vez de sempre voltar para o índice 0
+        currentId = combo.currentData()
+
+        combo.blockSignals(True)
+        combo.clear()
+        for company in companies:
+            combo.addItem(company["name"], userData=company["id"])
+        combo.blockSignals(False)
+
+        if currentId is not None:
+            index = combo.findData(currentId)
+            if index >= 0:
+                combo.setCurrentIndex(index)
+                return
+
+        if companies:
+            combo.setCurrentIndex(0)
+
     # ==================================================================
     # NAVEGAÇÃO
     # ==================================================================
@@ -211,6 +256,8 @@ class MainWindow(QMainWindow):
             self.companyValidator.showWarningIncompleteData(missingData)
             return
 
+        self._syncGinfesLoginWithIM()
+
         company = self.registerCompany.register()
 
         self.ui.buttonSaveCompany.setEnabled(False)
@@ -225,11 +272,13 @@ class MainWindow(QMainWindow):
         self.ui.buttonSaveCompany.setEnabled(True)
         self.ui.buttonSaveCompany.setText("Salvar Empresa")
 
-        if success:
-            QMessageBox.information(self, "Sucesso", "Empresa cadastrada com sucesso!")
-            self.goToHome()
-        else:
+        if not success:
             QMessageBox.critical(self, "Erro", f"Não foi possível cadastrar a empresa.\n\n{errorMessage}")
+            return
+
+        QMessageBox.information(self, "Sucesso", "Empresa cadastrada com sucesso!")
+        self.companyCache.refresh()  # empresa nova, cache precisa refletir isso
+        self.goToHome()
 
     def cancelCompany(self):
         # limpa tudo do formulário para deixar pronto para um novo cadastro
@@ -244,46 +293,37 @@ class MainWindow(QMainWindow):
 
         self.featureButtons.clearSystems(self.scrollLayoutSystems)
 
+    def _onSystemItemClicked(self):
+        item = self.systemsList.currentItem()
+
+        # GINFES usa a Inscrição Municipal como login por padrão
+        systemLogin = self.ui.imNumber.text().strip() if item.text() == "GINFES" else ""
+
+        self.featureButtons.onSystemToggled(item, self.scrollLayoutSystems, systemLogin, "")
+
+    def _syncGinfesLoginWithIM(self):
+        # se o usuário editou a IM depois de já ter marcado o GINFES, garante que o login da row do GINFES reflita o valor mais atual antes de salvar
+        ginfesRow = self.featureButtons.systemRows.get("GINFES")
+        if ginfesRow is not None:
+            ginfesRow.loginField.setText(self.ui.imNumber.text().strip())
+
     # ==================================================================
     # AGENDAMENTO DE TAREFAS
     # ==================================================================
 
     def onOpenScheduling(self):
         self.goToScheduling()
-        # só busca de novo se não tiver uma busca rolando ainda
-        if self.loadCompaniesWorker is None or not self.loadCompaniesWorker.isRunning():
-            self.loadCompanies()
 
-    def loadCompanies(self):
-        self.ui.boxCompanyScheduling.setEnabled(False)
-        self.loadCompaniesWorker = LoadCompaniesWorker()
-        self.loadCompaniesWorker.finished.connect(self.onCompaniesLoaded)
-        self.loadCompaniesWorker.start()
-
-    def onCompaniesLoaded(self, success: bool, companies: list, errorMessage: str):
-        self.ui.boxCompanyScheduling.setEnabled(True)
-
-        if not success:
-            QMessageBox.critical(self, "Erro", f"Não foi possível carregar as empresas.\n\n{errorMessage}")
-            return
-
-        self.loadedCompanies = companies
-
-        # bloqueia o sinal enquanto popula, senão currentIndexChanged dispara várias vezes durante o ‘loop’
-        self.ui.boxCompanyScheduling.blockSignals(True)
-        self.ui.boxCompanyScheduling.clear()
-
-        for company in companies:
-            self.ui.boxCompanyScheduling.addItem(company["name"], userData=company["id"])
-
-        self.ui.boxCompanyScheduling.blockSignals(False)
-
-        if companies:
-            self.onCompanySelected(0)
+        if self.companyCache.isLoaded():
+            self._refreshCompanyComboBoxes(self.companyCache.getAll())
+        else:
+            self.companyCache.refresh()  # app acabou de abrir e o cache ainda não voltou
 
     def onCompanySelected(self, index: int):
-        if index < 0 or index >= len(self.loadedCompanies):
+        companies = self.companyCache.getAll()
+        if index < 0 or index >= len(companies):
             return
+
         self._refreshNfTypeOptions()
         self.reloadTasksForSelectedCompany()
 
@@ -307,7 +347,7 @@ class MainWindow(QMainWindow):
         self.ui.updateListSched.setEnabled(True)
         self.ui.boxCompanyScheduling.setEnabled(True)
 
-        self._currentTasksCache = tasks  # guarda para achar a task pelo ‘id’ na hora de editar
+        self._currentTasksCache = tasks  # guarda para achar a task pelo id na hora de editar
 
         if not success:
             QMessageBox.critical(self, "Erro", f"Não foi possível carregar as tarefas.\n\n{errorMessage}")
@@ -343,7 +383,7 @@ class MainWindow(QMainWindow):
         if taskType == "NF":
             registeredKeys = self._getRegisteredSystemsForCurrentCompany()
             if not registeredKeys:
-                QMessageBox.warning(self, "Atenção", "Esta empresa não possui nenhum sistema de notas fiscais cadastrado.")
+                QMessageBox.warning(self, "Atenção","Esta empresa não possui nenhum sistema de notas fiscais cadastrado.")
                 return
 
             systemText = self.ui.boxNfType.currentText()
@@ -378,6 +418,7 @@ class MainWindow(QMainWindow):
             return
 
         QMessageBox.information(self, "Sucesso", "Agendamento criado com sucesso!")
+        self.companyCache.refresh()  # task nova entra na empresa, cache precisa refletir
         self.cancelScheduling()
         self.reloadTasksForSelectedCompany()
 
@@ -398,21 +439,11 @@ class MainWindow(QMainWindow):
         self._refreshNfTypeOptions()
 
     def _getRegisteredSystemsForCurrentCompany(self) -> list[str]:
-        # retorna só os sistemas que a empresa selecionada tem ‘login’ e senha preenchidos
+        # retorna só os sistemas que a empresa selecionada tem login e senha preenchidos
         companyId = self.ui.boxCompanyScheduling.currentData()
         if companyId is None:
             return []
-
-        company = next((c for c in self.loadedCompanies if c["id"] == companyId), None)
-        if company is None:
-            return []
-
-        systemLogins = company.get("system_logins", [])
-
-        return [
-            login["system_name"] for login in systemLogins
-            if login.get("login") and login.get("password")
-        ]
+        return self.companyCache.getRegisteredSystemKeys(companyId)
 
     def _refreshNfTypeOptions(self):
         # repopula o boxNfType conforme os sistemas cadastrados da empresa atual
@@ -461,6 +492,7 @@ class MainWindow(QMainWindow):
             return
 
         QMessageBox.information(self, "Sucesso", "Tarefa atualizada com sucesso!")
+        self.companyCache.refresh()
         self.reloadTasksForSelectedCompany()
 
     def onDeleteTaskRequested(self, taskId: int):
@@ -483,7 +515,48 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Erro", f"Não foi possível excluir a tarefa.\n\n{errorMessage}")
             return
 
+        self.companyCache.refresh()
         self.reloadTasksForSelectedCompany()
+
+    # ==================================================================
+    # AUTOMAÇÃO MANUAL (cards da Home — DAS, EFDs, Consulta de Notas)
+    # ==================================================================
+
+    def onRunAutomationClicked(self, taskType: str, taskTitle: str, requiresSystem: bool = False):
+        if self.runAutomationWorker is not None and self.runAutomationWorker.isRunning():
+            QMessageBox.information(self, "Aguarde", "Já existe uma automação em execução.")
+            return
+
+        companies = self.companyCache.getAll()
+        if not companies:
+            QMessageBox.warning(self, "Atenção", "Nenhuma empresa cadastrada ainda.")
+            return
+
+        dialog = RunAutomationDialog(taskType, taskTitle, companies, requiresSystem=requiresSystem, parent=self)
+
+        if dialog.exec() != QDialog.DialogCode.Accepted or dialog.selectedCompanyId is None:
+            return
+
+        company = self.companyCache.getById(dialog.selectedCompanyId)
+        if company is None:
+            return
+
+        taskData = {"task_type": taskType}
+        if requiresSystem:
+            taskData["nf_type"] = dialog.selectedNfType
+
+        # roda numa thread separada — a rotina ainda não existe de verdade, mas o dispatcher já sabe responder "não implementado" sem travar a janela
+        self.runAutomationWorker = AutomationExecutionWorker(
+            self.scheduler.dispatcher, company, taskData
+        )
+        self.runAutomationWorker.finished.connect(self._onManualAutomationFinished)
+        self.runAutomationWorker.start()
+
+    def _onManualAutomationFinished(self, taskData: dict, success: bool, message: str):
+        if success:
+            QMessageBox.information(self, "Sucesso", message or "Automação concluída.")
+        else:
+            QMessageBox.warning(self, "Aviso", message or "Automação não pôde ser executada.")
 
     # ==================================================================
     # PÁGINA DE CONFIGURAÇÕES
@@ -491,38 +564,18 @@ class MainWindow(QMainWindow):
 
     def onOpenConfig(self):
         self.goToConfig()
-        if self.loadCompaniesConfigWorker is None or not self.loadCompaniesConfigWorker.isRunning():
-            self.loadCompaniesForConfig()
 
-    def loadCompaniesForConfig(self):
-        self.ui.boxCompany.setEnabled(False)
-        self.loadCompaniesConfigWorker = LoadCompaniesWorker()
-        self.loadCompaniesConfigWorker.finished.connect(self.onCompaniesLoadedForConfig)
-        self.loadCompaniesConfigWorker.start()
-
-    def onCompaniesLoadedForConfig(self, success: bool, companies: list, errorMessage: str):
-        self.ui.boxCompany.setEnabled(True)
-
-        if not success:
-            QMessageBox.critical(self, "Erro", f"Não foi possível carregar as empresas.\n\n{errorMessage}")
-            return
-
-        self.loadedCompaniesConfig = companies
-
-        self.ui.boxCompany.blockSignals(True)
-        self.ui.boxCompany.clear()
-        for company in companies:
-            self.ui.boxCompany.addItem(company["name"], userData=company["id"])
-        self.ui.boxCompany.blockSignals(False)
-
-        if companies:
-            self.onConfigCompanySelected(0)
+        if self.companyCache.isLoaded():
+            self._refreshCompanyComboBoxes(self.companyCache.getAll())
+        else:
+            self.companyCache.refresh()
 
     def onConfigCompanySelected(self, index: int):
-        if index < 0 or index >= len(self.loadedCompaniesConfig):
+        companies = self.companyCache.getAll()
+        if index < 0 or index >= len(companies):
             return
 
-        company = self.loadedCompaniesConfig[index]
+        company = companies[index]
 
         self.ui.dataCNPJ.setText(company.get("cnpj", ""))
         self.ui.dataRS.setText(company.get("name", ""))
@@ -530,8 +583,7 @@ class MainWindow(QMainWindow):
         self._populateServicesForCompany(company)
 
     def _populateServicesForCompany(self, company: dict):
-        # monta o combo de serviços: os fixos do sistema (certificado) + os que a empresa
-        # tem cadastrado de verdade + o item de adicionar novo serviço no final
+        # monta o comboBox de serviços: os fixos do sistema (certificado) + os que a empresa tem cadastrado de verdade + o item de adicionar novo serviço no final
         self.ui.boxService.blockSignals(True)
         self.ui.boxService.clear()
 
@@ -567,11 +619,12 @@ class MainWindow(QMainWindow):
         if index < 0:
             return
 
+        companies = self.companyCache.getAll()
         companyIndex = self.ui.boxCompany.currentIndex()
-        if companyIndex < 0 or companyIndex >= len(self.loadedCompaniesConfig):
+        if companyIndex < 0 or companyIndex >= len(companies):
             return
 
-        company = self.loadedCompaniesConfig[companyIndex]
+        company = companies[companyIndex]
 
         if serviceText in CONFIG_SERVICE_OPTIONS:
             # DAS/EFDs assinam com certificado digital, não tem usuário/senha
@@ -584,7 +637,7 @@ class MainWindow(QMainWindow):
 
             self.ui.companyServicePass.setVisible(False)
         else:
-            # sistema de consulta de NF, mostra ‘login’ e senha
+            # sistema de consulta de NF, mostra login e senha
             loginData = self.ui.boxService.currentData()
 
             self.ui.titleCompanyServiceUser.setText(
@@ -596,16 +649,13 @@ class MainWindow(QMainWindow):
             self.ui.dataCompanyServicePass.setText(loginData.get("password", "") if loginData else "")
 
     def _openAddServiceDialog(self):
+        companies = self.companyCache.getAll()
         companyIndex = self.ui.boxCompany.currentIndex()
-        if companyIndex < 0 or companyIndex >= len(self.loadedCompaniesConfig):
+        if companyIndex < 0 or companyIndex >= len(companies):
             return
 
-        company = self.loadedCompaniesConfig[companyIndex]
-        systemLogins = company.get("system_logins", [])
-        registeredKeys = {
-            login["system_name"] for login in systemLogins
-            if login.get("login") and login.get("password")
-        }
+        company = companies[companyIndex]
+        registeredKeys = set(self.companyCache.getRegisteredSystemKeys(company["id"]))
 
         # só oferece os sistemas que a empresa ainda não tem
         allSystemKeys = set(SYSTEM_KEY_TO_DISPLAY_NAME.keys())
@@ -633,10 +683,22 @@ class MainWindow(QMainWindow):
             return
 
         QMessageBox.information(self, "Sucesso", "Serviço adicionado com sucesso!")
-        self.loadCompaniesForConfig()  # recarrega tudo para já mostrar o serviço novo
+        self.companyCache.refresh()  # recarrega tudo, já refletindo o novo sistema
 
     # ==================================================================
-    # JANELA DE SEGUNDO PLANO / EVENTO DE FECHAR
+    # AUTOMAÇÃO AGENDADA (disparada pelo TaskScheduler, sozinha, no horário)
+    # ==================================================================
+
+    def _onAutomationTaskExecuted(self, taskData: dict, success: bool, message: str):
+        if success:
+            self.trayIcon.showMessage("Automação Fiscal", f"Tarefa concluída: {message}",
+                                      QSystemTrayIcon.MessageIcon.Information, 3000)
+        else:
+            self.trayIcon.showMessage("Automação Fiscal", f"Falha na tarefa: {message}",
+                                      QSystemTrayIcon.MessageIcon.Warning, 3000)
+
+    # ==================================================================
+    # JANELA DE SEGUNDO PLANO / BANDEJA DO SISTEMA
     # ==================================================================
 
     def _onTrayIconActivated(self, reason):
@@ -649,6 +711,7 @@ class MainWindow(QMainWindow):
         self.raise_()
 
     def closeEvent(self, event):
+        # clicar no X não fecha o programa de verdade — só esconde, para continuar rodando o scheduler em segundo plano
         event.ignore()
         self.hide()
         self.trayIcon.showMessage(
@@ -661,17 +724,6 @@ class MainWindow(QMainWindow):
         self.trayIcon.hide()
         QApplication.quit()
 
-    # ==================================================================
-    # AUTOMAÇÃO
-    # ==================================================================
-
-    def _onAutomationTaskExecuted(self, taskData: dict, success: bool, message: str):
-        if success:
-            self.trayIcon.showMessage("Automação Fiscal", f"Tarefa concluída: {message}",
-                                      QSystemTrayIcon.MessageIcon.Information, 3000)
-        else:
-            self.trayIcon.showMessage("Automação Fiscal", f"Falha na tarefa: {message}",
-                                      QSystemTrayIcon.MessageIcon.Warning, 3000)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

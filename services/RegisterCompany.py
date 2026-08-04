@@ -11,7 +11,7 @@ from models.SystemsLogins import SystemsLogins, Credentials
 
 class RegisterCompany:
 
-    API_URL = "http://127.0.0.1:8000/empresas/"
+    API_URL = "https://automacao-fiscal-api.onrender.com/empresas/"
 
     def __init__(self, mainWindow:Ui_MainWindow):
         self.ui = mainWindow
@@ -40,7 +40,7 @@ class RegisterCompany:
         }
 
         try:
-            response = requests.post(self.API_URL, json=payload, timeout=10)
+            response = requests.post(self.API_URL, json=payload, timeout=70)
             response.raise_for_status()
             return True
         except requests.exceptions.HTTPError as error:

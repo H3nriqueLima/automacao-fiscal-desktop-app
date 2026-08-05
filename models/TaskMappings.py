@@ -57,3 +57,7 @@ CONFIG_SERVICE_OPTIONS = {
 }
 
 ADD_SERVICE_OPTION_TEXT = "+ Adicionar serviço..."
+
+CERTIFICATE_BASED_SYSTEM_KEYS = {"nota_milhao"}
+
+DISPLAY_NAME_TO_SYSTEM_KEY = {v: k for k, v in SYSTEM_KEY_TO_DISPLAY_NAME.items()}

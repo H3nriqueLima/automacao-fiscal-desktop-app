@@ -2804,8 +2804,8 @@ do Simples Nacional (DAS).</string>
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>475</width>
-                          <height>183</height>
+                          <width>260</width>
+                          <height>28</height>
                          </rect>
                         </property>
                         <property name="sizePolicy">
@@ -3535,6 +3535,46 @@ do Simples Nacional (DAS).</string>
                    </property>
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:700; color:#042e67;&quot;&gt;1. Empresa (Dados)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="buttonEditCompany">
+                   <property name="geometry">
+                    <rect>
+                     <x>160</x>
+                     <y>10</y>
+                     <width>91</width>
+                     <height>41</height>
+                    </rect>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>PointingHandCursor</cursorShape>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">#buttonEditCompany {
+	background-color: transparent;
+	border: 1px solid #EEEEEE;
+	border-radius: 5px;
+	padding: 4px;
+	color: #042e67;
+	font-weight: 600;
+}
+
+#buttonEditCompany:hover {
+	background-color: #EEEEEE;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>images/icone-Editar-semfundo.png</normaloff>images/icone-Editar-semfundo.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>20</width>
+                     <height>20</height>
+                    </size>
                    </property>
                   </widget>
                  </widget>

@@ -7,10 +7,12 @@ from PySide6.QtCore import Qt, QDate, QTimer
 from typing import cast
 
 from custom_widgets.AddServiceDialog import AddServiceDialog
+from custom_widgets.EditCompanyDialog import EditCompanyDialog
 from custom_widgets.ListWidgetCheck import ListWidgetCheck
 from custom_widgets.RunAutomationDialog import RunAutomationDialog
 from custom_widgets.TaskEditDialog import TaskEditDialog
-from models.TaskMappings import BOX_SCHEDULE_TO_TASK_TYPE, SYSTEM_KEY_TO_DISPLAY_NAME, DISPLAY_NAME_TO_NF_TYPE, CONFIG_SERVICE_OPTIONS, ADD_SERVICE_OPTION_TEXT
+from models.TaskMappings import BOX_SCHEDULE_TO_TASK_TYPE, SYSTEM_KEY_TO_DISPLAY_NAME, DISPLAY_NAME_TO_NF_TYPE, \
+    CONFIG_SERVICE_OPTIONS, ADD_SERVICE_OPTION_TEXT, DISPLAY_NAME_TO_SYSTEM_KEY, CERTIFICATE_BASED_SYSTEM_KEYS
 from services.CompanyCache import CompanyCache
 from services.FeatureButtons import FeatureButtons
 from services.RegisterCompany import RegisterCompany
@@ -24,6 +26,7 @@ from workers.CreateTaskWorker import CreateTaskWorker
 from workers.DeleteTaskWorker import DeleteTaskWorker
 from workers.LoadTasksWorker import LoadTasksWorker
 from workers.RegisterCompanyWorker import RegisterCompanyWorker
+from workers.UpdateCompanyFullWorker import UpdateCompanyFullWorker
 from workers.UpdateTaskWorker import UpdateTaskWorker
 from utils.resourcePath import resourcePath
 from utils.updateDayWeekHour import updateDayWeekHour
@@ -51,6 +54,7 @@ class MainWindow(QMainWindow):
         self.loadTasksWorker = None
         self.updateTaskWorker = None
         self.deleteTaskWorker = None
+        self.updateCompanyFullWorker = None
         self.addSystemLoginWorker = None
         self.runAutomationWorker = None
 
@@ -160,6 +164,7 @@ class MainWindow(QMainWindow):
         self.ui.buttonSearchPathCertificate.clicked.connect(self.selectCertificate.selectFile)
         self.ui.buttonCancelCompany.clicked.connect(self.cancelCompany)
         self.ui.buttonSaveCompany.clicked.connect(self.onRegisterCompanyClicked)
+        self.ui.buttonEditCompany.clicked.connect(self.onEditCompanyClicked)
 
         # esses dois são da tela de Configurações, mas ficam junto porque usam a mesma classe de validação
         self.ui.boxCompany.currentIndexChanged.connect(self.onConfigCompanySelected)
@@ -295,11 +300,15 @@ class MainWindow(QMainWindow):
 
     def _onSystemItemClicked(self):
         item = self.systemsList.currentItem()
+        itemName = item.text()
+
+        systemKey = DISPLAY_NAME_TO_SYSTEM_KEY.get(itemName)
+        isCertificateBased = systemKey in CERTIFICATE_BASED_SYSTEM_KEYS if systemKey else False
 
         # GINFES usa a Inscrição Municipal como login por padrão
-        systemLogin = self.ui.imNumber.text().strip() if item.text() == "GINFES" else ""
+        systemLogin = self.ui.imNumber.text().strip() if itemName == "GINFES" else ""
 
-        self.featureButtons.onSystemToggled(item, self.scrollLayoutSystems, systemLogin, "")
+        self.featureButtons.onSystemToggled(item, self.scrollLayoutSystems, systemLogin, "", isCertificateBased)
 
     def _syncGinfesLoginWithIM(self):
         # se o usuário editou a IM depois de já ter marcado o GINFES, garante que o login da row do GINFES reflita o valor mais atual antes de salvar
@@ -685,6 +694,34 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, "Sucesso", "Serviço adicionado com sucesso!")
         self.companyCache.refresh()  # recarrega tudo, já refletindo o novo sistema
 
+    def onEditCompanyClicked(self):
+        if self.updateCompanyFullWorker is not None and self.updateCompanyFullWorker.isRunning():
+            return
+
+        companies = self.companyCache.getAll()
+        companyIndex = self.ui.boxCompany.currentIndex()
+        if companyIndex < 0 or companyIndex >= len(companies):
+            return
+
+        company = companies[companyIndex]
+        dialog = EditCompanyDialog(company, parent=self)
+
+        if dialog.exec() == QDialog.DialogCode.Accepted and dialog.result_data:
+            companyId = company["id"]
+            data = dialog.result_data
+
+            self.updateCompanyFullWorker = UpdateCompanyFullWorker(companyId, data["company"], data["services"])
+            self.updateCompanyFullWorker.finished.connect(self.onCompanyUpdated)
+            self.updateCompanyFullWorker.start()
+
+    def onCompanyUpdated(self, success: bool, errorMessage: str):
+        if not success:
+            QMessageBox.critical(self, "Erro", f"Não foi possível atualizar a empresa.\n\n{errorMessage}")
+            return
+
+        QMessageBox.information(self, "Sucesso", "Empresa atualizada com sucesso!")
+        self.companyCache.refresh()
+
     # ==================================================================
     # AUTOMAÇÃO AGENDADA (disparada pelo TaskScheduler, sozinha, no horário)
     # ==================================================================
@@ -711,7 +748,7 @@ class MainWindow(QMainWindow):
         self.raise_()
 
     def closeEvent(self, event):
-        # clicar no X não fecha o programa de verdade — só esconde, para continuar rodando o scheduler em segundo plano
+        # clicar no X não fecha o programa de verdade — só esconde, para continuar a rodar o scheduler em segundo plano
         event.ignore()
         self.hide()
         self.trayIcon.showMessage(

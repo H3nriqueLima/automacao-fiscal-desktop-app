@@ -13,6 +13,14 @@ class CompanyApiService:
         return response.json()
 
     @staticmethod
+    def updateCompany(companyId: int, name: str, cnpj: str, im: str, certificatePath: str) -> dict:
+        url = f"{CompanyApiService.API_URL}{companyId}"
+        payload = {"name": name, "cnpj": cnpj, "im": im, "certificate_path": certificatePath}
+        response = requests.put(url, json=payload, timeout=10)
+        response.raise_for_status()
+        return response.json()
+
+    @staticmethod
     def createTask(companyId: int, taskData: dict) -> dict:
         url = f"{CompanyApiService.API_URL}{companyId}/tasks/"
         response = requests.post(url, json=taskData, timeout=70)

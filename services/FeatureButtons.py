@@ -35,11 +35,12 @@ class FeatureButtons:
                         systemListItem: QListWidgetItem,
                         parent: QBoxLayout,
                         systemLogin: str,
-                        systemPass: str) -> None:
+                        systemPass: str,
+                        isCertificateBased: bool = False) -> None:
         itemName: str = systemListItem.text()
 
         if systemListItem.checkState() == Qt.CheckState.Checked:
-            self.__addSystem(itemName, systemLogin, systemPass, parent)
+            self.__addSystem(itemName, systemLogin, systemPass, isCertificateBased, parent)
         else:
             self.__removeSystem(itemName, parent)
 
@@ -67,17 +68,19 @@ class FeatureButtons:
         return title, iconPath
 
     def __addSystem(self,
-                  systemName: str,
-                  systemLogin: str,
-                  systemPass: str,
-                  parent: QBoxLayout):
+                    systemName: str,
+                    systemLogin: str,
+                    systemPass: str,
+                    isCertificateBased: bool,
+                    parent: QBoxLayout):
         if systemName in self.systemRows:
             return
 
         system: SystemRowWidget = SystemRowWidget(
             systemName=systemName,
             login=systemLogin,
-            password=systemPass
+            password=systemPass,
+            isCertificateBased=isCertificateBased
         )
 
         parent.insertWidget(parent.count() - 1, system)

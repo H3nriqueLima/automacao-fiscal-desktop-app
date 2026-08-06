@@ -13,3 +13,7 @@ class SystemsLogins:
     NOTA_MILHAO: Credentials = field(default_factory=Credentials)
     MEMOCASH: Credentials = field(default_factory=Credentials)
     GISS_NOVA: Credentials = field(default_factory=Credentials)
+    SIEG: Credentials = field(default_factory=Credentials)
+    BLING: Credentials = field(default_factory=Credentials)
+    CAIXA_AZUL: Credentials = field(default_factory=Credentials)
+    OMIE: Credentials = field(default_factory=Credentials)

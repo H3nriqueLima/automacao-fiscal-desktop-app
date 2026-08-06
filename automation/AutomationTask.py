@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from automation.AutomationContext import AutomationContext
+
 
 class AutomationResult:
 
@@ -9,8 +11,7 @@ class AutomationResult:
 
 
 class AutomationTask(ABC):
-    # Contrato que todas as rotinas de automação vai seguir
 
     @abstractmethod
-    def run(self, companyData: dict, taskData: dict) -> AutomationResult:
-        print("")
+    def run(self, companyData: dict, taskData: dict, context: AutomationContext) -> AutomationResult:
+        ...

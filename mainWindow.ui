@@ -297,7 +297,7 @@
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="currentIndex">
-         <number>3</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="pageHome">
          <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -673,185 +673,18 @@
              <item>
               <widget class="QWidget" name="schedulesButtons" native="true">
                <layout class="QGridLayout" name="gridLayout">
-                <item row="0" column="1">
-                 <widget class="QWidget" name="buttonICMS" native="true">
-                  <property name="minimumSize">
+                <item row="1" column="2">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
                    <size>
-                    <width>240</width>
-                    <height>0</height>
+                    <width>40</width>
+                    <height>20</height>
                    </size>
                   </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>240</width>
-                    <height>110</height>
-                   </size>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <widget class="QLabel" name="buttonTitleICMS">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>68</x>
-                     <y>20</y>
-                     <width>111</width>
-                     <height>21</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:700; color:#042e67;&quot;&gt;EFD ICMS/IPI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                  </widget>
-                  <widget class="QPushButton" name="ICMSbutton">
-                   <property name="geometry">
-                    <rect>
-                     <x>0</x>
-                     <y>0</y>
-                     <width>240</width>
-                     <height>100</height>
-                    </rect>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>240</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>240</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">#ICMSbutton {
-	background-color: white;
-	border: 2px solid #EEEEEE;
- 	border-radius: 8px;
-}
-
-#ICMSbutton:hover {
-	background-color: #EEEEEE;
-}</string>
-                   </property>
-                   <property name="text">
-                    <string>
-Gerar e transmitir a Escrituração 
-Fiscal Digital (ICMS/IPI)..</string>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>images/icone-EFDICMS-semfundo.png</normaloff>images/icone-EFDICMS-semfundo.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>60</width>
-                     <height>60</height>
-                    </size>
-                   </property>
-                  </widget>
-                  <zorder>ICMSbutton</zorder>
-                  <zorder>buttonTitleICMS</zorder>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QWidget" name="buttonNotas" native="true">
-                  <property name="minimumSize">
-                   <size>
-                    <width>240</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>240</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <widget class="QLabel" name="buttonTitleNotas">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>71</x>
-                     <y>20</y>
-                     <width>161</width>
-                     <height>21</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:700; color:#042e67;&quot;&gt;Consulta de Notas Fiscais&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                  </widget>
-                  <widget class="QPushButton" name="Notasbutton">
-                   <property name="geometry">
-                    <rect>
-                     <x>0</x>
-                     <y>0</y>
-                     <width>240</width>
-                     <height>100</height>
-                    </rect>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>240</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>240</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                    </font>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">#Notasbutton {
-	background-color: white;
-	border: 2px solid #EEEEEE;
- 	border-radius: 8px;
-}
-
-#Notasbutton:hover {
-	background-color: #EEEEEE;
-}</string>
-                   </property>
-                   <property name="text">
-                    <string>
-Consultar, visualizar e exportar 
-Notas Fiscais Eletrônicas.</string>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>images/icone-ConsultaNF-semfundo.png</normaloff>images/icone-ConsultaNF-semfundo.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>60</width>
-                     <height>60</height>
-                    </size>
-                   </property>
-                  </widget>
-                  <zorder>Notasbutton</zorder>
-                  <zorder>buttonTitleNotas</zorder>
-                 </widget>
+                 </spacer>
                 </item>
                 <item row="1" column="0">
                  <widget class="QWidget" name="buttonEFDCont" native="true">
@@ -1033,18 +866,226 @@ do Simples Nacional (DAS).</string>
                   <zorder>buttonTitleDAS</zorder>
                  </widget>
                 </item>
-                <item row="1" column="2">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
+                <item row="0" column="1">
+                 <widget class="QWidget" name="buttonICMS" native="true">
+                  <property name="minimumSize">
                    <size>
-                    <width>40</width>
-                    <height>20</height>
+                    <width>240</width>
+                    <height>0</height>
                    </size>
                   </property>
-                 </spacer>
+                  <property name="maximumSize">
+                   <size>
+                    <width>240</width>
+                    <height>110</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <widget class="QLabel" name="buttonTitleICMS">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>68</x>
+                     <y>20</y>
+                     <width>111</width>
+                     <height>21</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:700; color:#042e67;&quot;&gt;EFD ICMS/IPI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="ICMSbutton">
+                   <property name="geometry">
+                    <rect>
+                     <x>0</x>
+                     <y>0</y>
+                     <width>240</width>
+                     <height>100</height>
+                    </rect>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>240</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>240</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">#ICMSbutton {
+	background-color: white;
+	border: 2px solid #EEEEEE;
+ 	border-radius: 8px;
+}
+
+#ICMSbutton:hover {
+	background-color: #EEEEEE;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string>
+Gerar e transmitir a Escrituração 
+Fiscal Digital (ICMS/IPI)..</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>images/icone-EFDICMS-semfundo.png</normaloff>images/icone-EFDICMS-semfundo.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>60</width>
+                     <height>60</height>
+                    </size>
+                   </property>
+                  </widget>
+                  <zorder>ICMSbutton</zorder>
+                  <zorder>buttonTitleICMS</zorder>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QWidget" name="buttonNotas" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>240</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>240</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <widget class="QLabel" name="buttonTitleNotas">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>71</x>
+                     <y>20</y>
+                     <width>161</width>
+                     <height>21</height>
+                    </rect>
+                   </property>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:700; color:#042e67;&quot;&gt;Consulta de Notas Fiscais&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="Notasbutton">
+                   <property name="geometry">
+                    <rect>
+                     <x>0</x>
+                     <y>0</y>
+                     <width>240</width>
+                     <height>100</height>
+                    </rect>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>240</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>240</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">#Notasbutton {
+	background-color: white;
+	border: 2px solid #EEEEEE;
+ 	border-radius: 8px;
+}
+
+#Notasbutton:hover {
+	background-color: #EEEEEE;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string>
+Consultar, visualizar e exportar 
+Notas Fiscais Eletrônicas.</string>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>images/icone-ConsultaNF-semfundo.png</normaloff>images/icone-ConsultaNF-semfundo.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>60</width>
+                     <height>60</height>
+                    </size>
+                   </property>
+                  </widget>
+                  <zorder>Notasbutton</zorder>
+                  <zorder>buttonTitleNotas</zorder>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QWidget" name="monitorButtonContent" native="true">
+                  <widget class="QPushButton" name="buttonShowRunningTasks">
+                   <property name="geometry">
+                    <rect>
+                     <x>154</x>
+                     <y>10</y>
+                     <width>51</width>
+                     <height>51</height>
+                    </rect>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>PointingHandCursor</cursorShape>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">#buttonShowRunningTasks {
+	background-color: white;
+	border: none;
+ 	border-radius: 8px;
+}
+
+#buttonShowRunningTasks:hover {
+	background-color: #EEEEEE;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>images/icone-MonitorTarefas-semfundo.png</normaloff>images/icone-MonitorTarefas-semfundo.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>45</width>
+                     <height>45</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -1872,7 +1913,7 @@ do Simples Nacional (DAS).</string>
                         <rect>
                          <x>0</x>
                          <y>0</y>
-                         <width>260</width>
+                         <width>728</width>
                          <height>138</height>
                         </rect>
                        </property>
@@ -2804,8 +2845,8 @@ do Simples Nacional (DAS).</string>
                          <rect>
                           <x>0</x>
                           <y>0</y>
-                          <width>260</width>
-                          <height>28</height>
+                          <width>475</width>
+                          <height>183</height>
                          </rect>
                         </property>
                         <property name="sizePolicy">
@@ -2869,7 +2910,7 @@ do Simples Nacional (DAS).</string>
 }</string>
                         </property>
                         <property name="text">
-                         <string>Total de Agendamentos: 7</string>
+                         <string>Total de Agendamentos: 0</string>
                         </property>
                        </widget>
                       </widget>
@@ -3118,11 +3159,6 @@ do Simples Nacional (DAS).</string>
 	padding: 4px;
 }</string>
                       </property>
-                      <item>
-                       <property name="text">
-                        <string>IMPACTUS CONTABILIDADE LTDA</string>
-                       </property>
-                      </item>
                      </widget>
                     </widget>
                    </item>
@@ -3185,7 +3221,7 @@ do Simples Nacional (DAS).</string>
 }</string>
                        </property>
                        <property name="text">
-                        <string>12.345.678/0001-90</string>
+                        <string/>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -3266,7 +3302,7 @@ do Simples Nacional (DAS).</string>
 }</string>
                        </property>
                        <property name="text">
-                        <string>IMPACTUS CONTABILIDADE LTDA</string>
+                        <string/>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3321,11 +3357,6 @@ do Simples Nacional (DAS).</string>
 	padding: 4px;
 }</string>
                        </property>
-                       <item>
-                        <property name="text">
-                         <string>DAS (PGDAS-D - e-CAC)</string>
-                        </property>
-                       </item>
                       </widget>
                      </widget>
                      <widget class="QWidget" name="dataServices" native="true">
@@ -3402,7 +3433,7 @@ do Simples Nacional (DAS).</string>
 }</string>
                        </property>
                        <property name="text">
-                        <string>teste</string>
+                        <string/>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -3460,7 +3491,7 @@ do Simples Nacional (DAS).</string>
 }</string>
                        </property>
                        <property name="text">
-                        <string>123456</string>
+                        <string/>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>

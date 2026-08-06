@@ -6,13 +6,16 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QMessageBo
 from PySide6.QtCore import Qt, QDate, QTimer
 from typing import cast
 
+from automation.routines.DasAutomation import DasAutomation
 from custom_widgets.AddServiceDialog import AddServiceDialog
 from custom_widgets.EditCompanyDialog import EditCompanyDialog
 from custom_widgets.ListWidgetCheck import ListWidgetCheck
 from custom_widgets.RunAutomationDialog import RunAutomationDialog
+from custom_widgets.RunningTasksDialog import RunningTasksDialog
 from custom_widgets.TaskEditDialog import TaskEditDialog
 from models.TaskMappings import BOX_SCHEDULE_TO_TASK_TYPE, SYSTEM_KEY_TO_DISPLAY_NAME, DISPLAY_NAME_TO_NF_TYPE, \
     CONFIG_SERVICE_OPTIONS, ADD_SERVICE_OPTION_TEXT, DISPLAY_NAME_TO_SYSTEM_KEY, CERTIFICATE_BASED_SYSTEM_KEYS
+from services.AutomationMonitor import AutomationMonitor
 from services.CompanyCache import CompanyCache
 from services.FeatureButtons import FeatureButtons
 from services.RegisterCompany import RegisterCompany
@@ -76,12 +79,17 @@ class MainWindow(QMainWindow):
         self._setupScheduling()
         self._setupSystemTray()
 
+        self.ui.buttonShowRunningTasks.clicked.connect(self._openRunningTasksDialog)
+
         self.goToHome()
 
         # motor que fica de olho no relógio e dispara as automações agendadas
         self.scheduler = TaskScheduler(checkIntervalMs=60_000)
+        self.scheduler.dispatcher.register("DAS", DasAutomation())
         self.scheduler.taskExecuted.connect(self._onAutomationTaskExecuted)
         self.scheduler.start()
+
+        self.automationMonitor = AutomationMonitor(self)
 
     # =====================================================================
     # SETUP — monta cada parte da tela, chamado uma vez só na inicialização
@@ -136,7 +144,7 @@ class MainWindow(QMainWindow):
         layoutSystems.setContentsMargins(0, 9, 0, 9)
         contentSystems.setLayout(layoutSystems)
 
-        self.systemsList = ListWidgetCheck(["Nota do Milhão", "IOB", "Memocash", "GINFES", "GISS Nova"])
+        self.systemsList = ListWidgetCheck(["Bling", "Caixa Azul", "GINFES", "GISS Nova", "IOB", "Memocash", "Nota do Milhão", "Omie", "SIEG"])
         layoutSystems.addWidget(self.systemsList)
 
         self.systemsList.itemClicked.connect(self._onSystemItemClicked)
@@ -555,13 +563,17 @@ class MainWindow(QMainWindow):
             taskData["nf_type"] = dialog.selectedNfType
 
         # roda numa thread separada — a rotina ainda não existe de verdade, mas o dispatcher já sabe responder "não implementado" sem travar a janela
-        self.runAutomationWorker = AutomationExecutionWorker(
-            self.scheduler.dispatcher, company, taskData
-        )
-        self.runAutomationWorker.finished.connect(self._onManualAutomationFinished)
+        self.runAutomationWorker = AutomationExecutionWorker(self.scheduler.dispatcher, company, taskData)
+
+        label = f"{taskTitle} — {company['name']}"
+        entryId = self.automationMonitor.register(label, self.runAutomationWorker)
+
+        self.runAutomationWorker.finished.connect(lambda taskData, success, message, eid=entryId: self._onManualAutomationFinished(taskData, success, message, eid))
         self.runAutomationWorker.start()
 
-    def _onManualAutomationFinished(self, taskData: dict, success: bool, message: str):
+    def _onManualAutomationFinished(self, taskData: dict, success: bool, message: str, entryId: int):
+        self.automationMonitor.markFinished(entryId, success)
+
         if success:
             QMessageBox.information(self, "Sucesso", message or "Automação concluída.")
         else:
@@ -733,6 +745,10 @@ class MainWindow(QMainWindow):
         else:
             self.trayIcon.showMessage("Automação Fiscal", f"Falha na tarefa: {message}",
                                       QSystemTrayIcon.MessageIcon.Warning, 3000)
+
+    def _openRunningTasksDialog(self):
+        dialog = RunningTasksDialog(self.automationMonitor, parent=self)
+        dialog.exec()
 
     # ==================================================================
     # JANELA DE SEGUNDO PLANO / BANDEJA DO SISTEMA

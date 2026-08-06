@@ -79,7 +79,11 @@ class RegisterCompany:
             "IOB": "IOB",
             "Memocash": "MEMOCASH",
             "GINFES": "GINFES",
-            "GISS Nova": "GISS_NOVA"
+            "GISS Nova": "GISS_NOVA",
+            "SIEG": "SIEG",
+            "Bling": "BLING",
+            "Caixa Azul": "CAIXA_AZUL",
+            "Omie": "OMIE",
         }
 
         logins = SystemsLogins()
@@ -105,4 +109,8 @@ class RegisterCompany:
             "nota_milhao": asdict(systemsLogins.NOTA_MILHAO),
             "memocash": asdict(systemsLogins.MEMOCASH),
             "giss_nova": asdict(systemsLogins.GISS_NOVA),
+            "sieg": asdict(systemsLogins.SIEG),
+            "bling": asdict(systemsLogins.BLING),
+            "caixa_azul": asdict(systemsLogins.CAIXA_AZUL),
+            "omie": asdict(systemsLogins.OMIE),
         }

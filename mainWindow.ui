@@ -673,18 +673,46 @@
              <item>
               <widget class="QWidget" name="schedulesButtons" native="true">
                <layout class="QGridLayout" name="gridLayout">
-                <item row="1" column="2">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Orientation::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
+                <item row="0" column="2">
+                 <widget class="QWidget" name="monitorButtonContent" native="true">
+                  <widget class="QPushButton" name="buttonShowRunningTasks">
+                   <property name="geometry">
+                    <rect>
+                     <x>154</x>
+                     <y>10</y>
+                     <width>51</width>
+                     <height>51</height>
+                    </rect>
+                   </property>
+                   <property name="cursor">
+                    <cursorShape>PointingHandCursor</cursorShape>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">#buttonShowRunningTasks {
+	background-color: white;
+	border: none;
+ 	border-radius: 8px;
+}
+
+#buttonShowRunningTasks:hover {
+	background-color: #EEEEEE;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>images/icone-MonitorTarefas-semfundo.png</normaloff>images/icone-MonitorTarefas-semfundo.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>45</width>
+                     <height>45</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </widget>
                 </item>
                 <item row="1" column="0">
                  <widget class="QWidget" name="buttonEFDCont" native="true">
@@ -791,7 +819,7 @@ Fiscal Digital de Contribuições.</string>
                    </size>
                   </property>
                   <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
+                   <cursorShape>ArrowCursor</cursorShape>
                   </property>
                   <widget class="QLabel" name="buttonTitleDAS">
                    <property name="enabled">
@@ -800,7 +828,7 @@ Fiscal Digital de Contribuições.</string>
                    <property name="geometry">
                     <rect>
                      <x>72</x>
-                     <y>20</y>
+                     <y>3</y>
                      <width>41</width>
                      <height>21</height>
                     </rect>
@@ -815,7 +843,7 @@ Fiscal Digital de Contribuições.</string>
                      <x>0</x>
                      <y>0</y>
                      <width>240</width>
-                     <height>100</height>
+                     <height>101</height>
                     </rect>
                    </property>
                    <property name="minimumSize">
@@ -835,11 +863,15 @@ Fiscal Digital de Contribuições.</string>
                      <pointsize>8</pointsize>
                     </font>
                    </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LayoutDirection::LeftToRight</enum>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">#DASbutton {
-	background-color: white;
+	background-color: #EEEEEE;
 	border: 2px solid #EEEEEE;
  	border-radius: 8px;
+	padding-bottom: 40px;
 }
 
 #DASbutton:hover {
@@ -862,99 +894,129 @@ do Simples Nacional (DAS).</string>
                     </size>
                    </property>
                   </widget>
-                  <zorder>DASbutton</zorder>
-                  <zorder>buttonTitleDAS</zorder>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QWidget" name="buttonICMS" native="true">
-                  <property name="minimumSize">
-                   <size>
-                    <width>240</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>240</width>
-                    <height>110</height>
-                   </size>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <widget class="QLabel" name="buttonTitleICMS">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>68</x>
-                     <y>20</y>
-                     <width>111</width>
-                     <height>21</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:700; color:#042e67;&quot;&gt;EFD ICMS/IPI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                  </widget>
-                  <widget class="QPushButton" name="ICMSbutton">
+                  <widget class="QWidget" name="receitaFederalContent" native="true">
                    <property name="geometry">
                     <rect>
                      <x>0</x>
-                     <y>0</y>
-                     <width>240</width>
-                     <height>100</height>
+                     <y>57</y>
+                     <width>241</width>
+                     <height>43</height>
                     </rect>
                    </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>240</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>240</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                    </font>
-                   </property>
                    <property name="styleSheet">
-                    <string notr="true">#ICMSbutton {
-	background-color: white;
-	border: 2px solid #EEEEEE;
- 	border-radius: 8px;
-}
-
-#ICMSbutton:hover {
-	background-color: #EEEEEE;
+                    <string notr="true">#receitaFederalContent {
+	background-color: #315a9d;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }</string>
                    </property>
-                   <property name="text">
-                    <string>
-Gerar e transmitir a Escrituração 
-Fiscal Digital (ICMS/IPI)..</string>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>images/icone-EFDICMS-semfundo.png</normaloff>images/icone-EFDICMS-semfundo.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>60</width>
-                     <height>60</height>
-                    </size>
-                   </property>
+                   <widget class="QPushButton" name="receitaFederalIcon">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="geometry">
+                     <rect>
+                      <x>6</x>
+                      <y>-1</y>
+                      <width>45</width>
+                      <height>45</height>
+                     </rect>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">#receitaFederalIcon {
+	background-color: transparent;
+}
+#receitaFederalIcon:hover {
+	background-color: transparent;
+}
+
+</string>
+                    </property>
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="icon">
+                     <iconset>
+                      <normaloff>images/icone-ReceitaFederal-semfundo.png</normaloff>images/icone-ReceitaFederal-semfundo.png</iconset>
+                    </property>
+                    <property name="iconSize">
+                     <size>
+                      <width>37</width>
+                      <height>37</height>
+                     </size>
+                    </property>
+                   </widget>
+                   <widget class="Line" name="lineReceitaFederal">
+                    <property name="geometry">
+                     <rect>
+                      <x>55</x>
+                      <y>5</y>
+                      <width>3</width>
+                      <height>35</height>
+                     </rect>
+                    </property>
+                    <property name="styleSheet">
+                     <string notr="true">#lineReceitaFederal {
+	color: white;
+}</string>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Shadow::Plain</enum>
+                    </property>
+                    <property name="lineWidth">
+                     <number>1</number>
+                    </property>
+                    <property name="midLineWidth">
+                     <number>0</number>
+                    </property>
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Vertical</enum>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label">
+                    <property name="geometry">
+                     <rect>
+                      <x>65</x>
+                      <y>1</y>
+                      <width>171</width>
+                      <height>16</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:8pt; font-weight:700; color:#ffffff;&quot;&gt;Bloqueado pela Receita Federal&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                   </widget>
+                   <widget class="QLabel" name="label_2">
+                    <property name="geometry">
+                     <rect>
+                      <x>65</x>
+                      <y>15</y>
+                      <width>171</width>
+                      <height>24</height>
+                     </rect>
+                    </property>
+                    <property name="text">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt; color:#ffffff;&quot;&gt;Acesso bloqueado por comportamento &lt;br/&gt;suspeito (proteção anti-bot).&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                   </widget>
                   </widget>
-                  <zorder>ICMSbutton</zorder>
-                  <zorder>buttonTitleICMS</zorder>
+                  <zorder>DASbutton</zorder>
+                  <zorder>buttonTitleDAS</zorder>
+                  <zorder>receitaFederalContent</zorder>
                  </widget>
+                </item>
+                <item row="1" column="2">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item row="1" column="1">
                  <widget class="QWidget" name="buttonNotas" native="true">
@@ -1046,45 +1108,94 @@ Notas Fiscais Eletrônicas.</string>
                   <zorder>buttonTitleNotas</zorder>
                  </widget>
                 </item>
-                <item row="0" column="2">
-                 <widget class="QWidget" name="monitorButtonContent" native="true">
-                  <widget class="QPushButton" name="buttonShowRunningTasks">
+                <item row="0" column="1">
+                 <widget class="QWidget" name="buttonICMS" native="true">
+                  <property name="minimumSize">
+                   <size>
+                    <width>240</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>240</width>
+                    <height>110</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <widget class="QLabel" name="buttonTitleICMS">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="geometry">
                     <rect>
-                     <x>154</x>
-                     <y>10</y>
-                     <width>51</width>
-                     <height>51</height>
+                     <x>68</x>
+                     <y>20</y>
+                     <width>111</width>
+                     <height>21</height>
                     </rect>
                    </property>
-                   <property name="cursor">
-                    <cursorShape>PointingHandCursor</cursorShape>
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:700; color:#042e67;&quot;&gt;EFD ICMS/IPI&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                  <widget class="QPushButton" name="ICMSbutton">
+                   <property name="geometry">
+                    <rect>
+                     <x>0</x>
+                     <y>0</y>
+                     <width>240</width>
+                     <height>100</height>
+                    </rect>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>240</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>240</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">#buttonShowRunningTasks {
+                    <string notr="true">#ICMSbutton {
 	background-color: white;
-	border: none;
+	border: 2px solid #EEEEEE;
  	border-radius: 8px;
 }
 
-#buttonShowRunningTasks:hover {
+#ICMSbutton:hover {
 	background-color: #EEEEEE;
 }</string>
                    </property>
                    <property name="text">
-                    <string/>
+                    <string>
+Gerar e transmitir a Escrituração 
+Fiscal Digital (ICMS/IPI)..</string>
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>images/icone-MonitorTarefas-semfundo.png</normaloff>images/icone-MonitorTarefas-semfundo.png</iconset>
+                     <normaloff>images/icone-EFDICMS-semfundo.png</normaloff>images/icone-EFDICMS-semfundo.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>45</width>
-                     <height>45</height>
+                     <width>60</width>
+                     <height>60</height>
                     </size>
                    </property>
                   </widget>
+                  <zorder>ICMSbutton</zorder>
+                  <zorder>buttonTitleICMS</zorder>
                  </widget>
                 </item>
                </layout>

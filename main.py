@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
 
         # motor que fica de olho no relógio e dispara as automações agendadas
         self.scheduler = TaskScheduler(checkIntervalMs=60_000)
-        self.scheduler.dispatcher.register("DAS", DasAutomation())
+        # self.scheduler.dispatcher.register("DAS", DasAutomation())
         self.scheduler.taskExecuted.connect(self._onAutomationTaskExecuted)
         self.scheduler.start()
 

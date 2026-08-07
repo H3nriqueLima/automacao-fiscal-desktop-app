@@ -4,7 +4,20 @@ from automation.AutomationTask import AutomationTask, AutomationResult
 from automation.AutomationContext import AutomationContext, AutomationCancelledError
 from automation.windows.CertificateSelector import selectWindowsCertificate, CertificateSelectionError
 
-
+# ⚠️ ROTINA DESATIVADA — não usar/registrar no dispatcher.
+#
+# A Receita Federal (gov.br/e-CAC) tem detecção anti-bot agressiva
+# (fingerprinting de browser, comportamento de mouse/teclado, timing
+# entre ações) que identifica e bloqueia o acesso automatizado via
+# Playwright, mesmo com janela anônima e Chrome real.
+#
+# Tentativas feitas: contexto anônimo por execução, Chrome real (não
+# Chromium headless), seleção de certificado via pywinauto, pausa manual
+# pra captcha. Mesmo assim o site bloqueia a automação antes de completar
+# o login.
+#
+# Mantido aqui só de referência/histórico — o fluxo de DAS via e-CAC não
+# é viável do jeito que está.
 class DasAutomation(AutomationTask):
 
     LOGIN_URL = "https://cav.receita.fazenda.gov.br/autenticacao/login"
@@ -28,7 +41,7 @@ class DasAutomation(AutomationTask):
 
                 context.reportProgress("Clicando em 'Entrar com gov.br'...")
                 context.checkCancelled()
-                page.get_by_text("Entrar com gov.br").click()
+                page.get_by_role("button", name="Acesso Gov BR").click()
 
                 if self._hasCaptcha(page):
                     context.reportProgress("Captcha detectado — resolva manualmente e aguarde.")
